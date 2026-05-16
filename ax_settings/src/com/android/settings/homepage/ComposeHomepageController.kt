@@ -53,6 +53,8 @@ class ComposeHomepageController(private val activity: SettingsHomepageActivity) 
         private const val WELLBEING_ACTIVITY = "com.google.android.apps.wellbeing.settings.TopLevelSettingsActivity"
         private const val GOOGLE_PKG = "com.google.android.gms"
         private const val GOOGLE_ACTIVITY = "com.google.android.gms.app.settings.GoogleSettingsIALink"
+        private const val DEVICE_SETTINGS_PKG = "org.lineageos.device.settings"
+        private const val DEVICE_SETTINGS_ACTIVITY = "org.lineageos.device.settings.DeviceSettingsActivity"
 
         private const val ABOUT_FRAGMENT_CLASS = "com.android.settings.deviceinfo.axion.AxionAboutFragment"
         private const val PERSONALIZE_FRAGMENT_CLASS = "com.android.settings.personalize.PersonalizeFragment"
@@ -123,7 +125,8 @@ class ComposeHomepageController(private val activity: SettingsHomepageActivity) 
             isEmergencyAvailable = activity.resources.getBoolean(R.bool.config_show_emergency_settings),
             isSupportAvailable = FeatureFactory.featureFactory.supportFeatureProvider != null,
             isWellbeingAvailable = isActivityResolvable(WELLBEING_PKG, WELLBEING_ACTIVITY),
-            isGoogleAvailable = isActivityResolvable(GOOGLE_PKG, GOOGLE_ACTIVITY)
+            isGoogleAvailable = isActivityResolvable(GOOGLE_PKG, GOOGLE_ACTIVITY),
+            isDeviceSettingsAvailable = isActivityResolvable(DEVICE_SETTINGS_PKG, DEVICE_SETTINGS_ACTIVITY)
         )
 
         return fragment
@@ -145,6 +148,7 @@ class ComposeHomepageController(private val activity: SettingsHomepageActivity) 
         when (key) {
             "personalize", "axion_hub" -> { launchPersonalizeFragment(fragment); return }
             "axion_themepicker" -> { launchWallpaperAndStyles(); return }
+            "top_level_device_settings" -> { launchExternalSettings(DEVICE_SETTINGS_PKG, DEVICE_SETTINGS_ACTIVITY); return }
             "top_level_wellbeing" -> { launchExternalSettings(WELLBEING_PKG, WELLBEING_ACTIVITY); return }
             "top_level_google" -> { launchExternalSettings(GOOGLE_PKG, GOOGLE_ACTIVITY); return }
         }
