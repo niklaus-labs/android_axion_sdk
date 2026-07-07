@@ -84,6 +84,7 @@ fun CustomSeekBar(
     continuousUpdates: Boolean = false,
     formatValue: (Int) -> String = { it.toString() },
     position: PreferencePosition = LocalPreferencePosition.current,
+    onValueChangeFinished: (() -> Unit)? = null,
 ) {
     require(max >= min) { "max ($max) must be >= min ($min)" }
     require(interval > 0) { "interval must be positive" }
@@ -245,6 +246,7 @@ fun CustomSeekBar(
                 onValueChangeFinished = {
                     isDragging = false
                     onValueChange(snapped(sliderValue))
+                    onValueChangeFinished?.invoke()
                 },
                 valueRange = min.toFloat()..max.toFloat(),
                 steps = steps,
