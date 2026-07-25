@@ -504,11 +504,8 @@ private fun StatusChip(
   buildType: String,
   maintainer: String,
 ) {
-  val isOfficial = buildType.lowercase() in listOf("official", "stable")
-  val containerColor = if (isOfficial) MaterialTheme.colorScheme.secondaryContainer
-    else MaterialTheme.colorScheme.surfaceContainerHigh
-  val contentColor = if (isOfficial) MaterialTheme.colorScheme.onSecondaryContainer
-    else MaterialTheme.colorScheme.onSurface
+  val containerColor = MaterialTheme.colorScheme.secondaryContainer
+  val contentColor = MaterialTheme.colorScheme.onSecondaryContainer
 
   Surface(
     shape = RoundedCornerShape(20.dp),
@@ -519,16 +516,8 @@ private fun StatusChip(
       horizontalArrangement = Arrangement.spacedBy(4.dp),
       verticalAlignment = Alignment.CenterVertically,
     ) {
-      if (isOfficial) {
-        Icon(
-          imageVector = Icons.Outlined.Verified,
-          contentDescription = null,
-          modifier = Modifier.size(12.dp),
-          tint = contentColor,
-        )
-      }
       Text(
-        text = if (isOfficial) "$buildType · $maintainer" else maintainer,
+        text = "$maintainer",
         style = MaterialTheme.typography.labelSmall.copy(
           lineHeightStyle = LineHeightStyle(
             alignment = LineHeightStyle.Alignment.Center,
