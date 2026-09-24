@@ -51,14 +51,12 @@ import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.State
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.setValue
-import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -116,9 +114,6 @@ import com.android.systemui.volume.panel.component.volume.slider.ui.viewmodel.Au
 import com.android.systemui.volume.panel.component.volume.slider.ui.viewmodel.SliderState
 import com.android.systemui.volume.ui.compose.slider.SliderIcon
 import kotlin.math.round
-import kotlinx.coroutines.flow.distinctUntilChanged
-import kotlinx.coroutines.flow.filter
-import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 
 @Composable
@@ -679,7 +674,6 @@ private fun AxVolumeSliderContent(
     val interactionSource = remember { MutableInteractionSource() }
     val hapticsViewModel =
         axVolumeHapticsViewModel(
-            value = value,
             state = state,
             interactionSource = interactionSource,
             factory = if (interactive) viewModel.getSliderHapticsViewModelFactory() else null,
@@ -690,6 +684,7 @@ private fun AxVolumeSliderContent(
         valueRange = state.valueRange,
         onValueChange = { newValue ->
             hapticsViewModel?.addVelocityDataPoint(newValue)
+            hapticsViewModel?.onValueChange(round(newValue))
             if (interactive) viewModel.onValueChanged(state, newValue)
         },
         onValueChangeFinished = {
@@ -768,7 +763,6 @@ private fun axVolumeValueState(state: SliderState): State<Float> {
 
 @Composable
 private fun axVolumeHapticsViewModel(
-    value: Float,
     state: SliderState,
     interactionSource: MutableInteractionSource,
     factory: SliderHapticsViewModel.Factory?,
@@ -780,26 +774,13 @@ private fun axVolumeHapticsViewModel(
                 state.hapticFilter,
             )
         rememberViewModel(traceName = "AxVolumeSliderHaptics") {
-                it.create(
-                    interactionSource,
-                    state.valueRange,
-                    Orientation.Horizontal,
-                    configs.hapticFeedbackConfig,
-                    configs.sliderTrackerConfig,
-                )
-            }
-            .also { hapticsViewModel ->
-                var lastStep by remember { mutableFloatStateOf(round(value)) }
-                LaunchedEffect(value) {
-                    snapshotFlow { value }
-                        .map { round(it) }
-                        .filter { it != lastStep }
-                        .distinctUntilChanged()
-                        .collect { step ->
-                            lastStep = step
-                            hapticsViewModel.onValueChange(step)
-                        }
-                }
-            }
+            it.create(
+                interactionSource,
+                state.valueRange,
+                Orientation.Horizontal,
+                configs.hapticFeedbackConfig,
+                configs.sliderTrackerConfig,
+            )
+        }
     }
 }
